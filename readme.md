@@ -93,6 +93,8 @@ Default value: `/`
 This is the value that would be used in the `<base href="?">` tag in the `<head>` of the HTML output document. However, because the rendered Markdown documents may contain relative links between them and adding e.g. `<base href="/">` would break it.\
 Thus, we want to apply this behaviour *only* to this stylesheet.
 
+This is useful if the website is anchored not on the root of the domain. For example, you could have the root URL of the website like `https://username.github.io/repository/`, so the `stylesheet-base-href` parameter should be set to `/repository/`.
+
 #### 2.1.6. `head`
 
 Default value: [template contained in this repository](template/head.html)
