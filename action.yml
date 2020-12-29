@@ -1,0 +1,101 @@
+name: 'VYROW'
+description: 'Render all Markdown documents in your repository into HTML documents.'
+
+inputs:
+  source-directory:
+    description: 'The source directory containing the source Markdown files.'
+    required: true
+    default: '.'
+
+  pandoc-script:
+    description: 'The script that runs the `pandoc` program. You can provide a path to your own script that runs `pandoc` differently.'
+    required: true
+    default: ${{ github.action_path }}/pandoc.sh
+
+  pandoc-template:
+    description: 'The pandoc HTML template.'
+    required: true
+    default: ${{ github.action_path }}/template/pandoc-template.html
+
+  stylesheet:
+    description: 'The stylesheet file to use for the rendered website.'
+    required: true
+    default: ${{ github.action_path }}/template/style.css
+
+  stylesheet-base-href:
+    description: 'Because all links in the Markdown documents need to stay relative we cannot add the `<base />` tag in the `<head>` element of a single output document. Instead, we can prefix only the CSS stylesheet file to behave appropriately. More in the ‹readme› of the repository of this GH Action.'
+    required: true
+    default: '/'
+
+  head:
+    description: 'A file that contains some additional HTML data to input into `<head>`.'
+    required: true
+    default: ${{ github.action_path }}/template/head.html
+
+  mathjax:
+    description: 'The URL path to the MathJax JS script that enables the documents to have LaTeX markup in them.'
+    required: true
+    default: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Install `pandoc`'
+      shell: bash
+      run: sudo apt install pandoc
+
+    - name: 'Copy all documents (and other files as well) to the `dist` directory'
+      working-directory: ${{ inputs.source-directory }}
+      shell: bash
+      run: | # copy all files that are not the `dist` directory itself or the `.git` directory
+        ls -A | grep -v '^dist$' | grep -v '^.git$' |
+        xargs -d '\n' cp -r -t 'dist' --
+
+    - name: 'Render the Markdown documents'
+      shell: bash
+      working-directory: ${{ inputs.source-directory }}/dist
+      run: |
+        find . -type f | grep .md |
+        while read file; do
+          ${{ inputs.pandoc-script }} \
+            "$file" \
+            "${{ inputs.pandoc-template }}" \
+            "${{ inputs.stylesheet-base-href }}${${{ inputs.stylesheet }}##*/}" \
+            "${{ inputs.head }}" \
+            "${{ inputs.mathjax }}" \
+              > "${file%???}"".html"
+        done
+
+    - name: 'Remove all raw Markdown documents (HTML documents have already been generated)'
+      shell: bash
+      working-directory: ${{ inputs.source-directory }}/dist
+      run: |
+        find . -type f | grep .md |
+        xargs -d '\n' rm --
+        done
+
+    - name: 'Fix all `.md` links'
+      shell: bash
+      working-directory: ${{ inputs.source-directory }}/dist
+      # links are without the `.html` at the end — GH Pages handles it
+      run: |
+        find . -type f | grep .html |
+        while read file; do
+          perl -i -pe 's/(")([^"]+)(\.md")/"$2"/gm' -- "$file"
+        done
+
+    - name: 'Rename the main readme file'
+      shell: bash
+      working-directory: ${{ inputs.source-directory }}/dist
+      run: |
+        index_file="$(ls -A | grep -iE readme\.html)"
+        if [ -n "$index_file" ]; then
+          mv $(ls -A | grep -iE readme\.html) index.html
+        else
+          echo "::warning::missing the main readme file thus no index.html has been generated"
+        fi
+
+    - name: 'Add the stylesheet file'
+      shell: bash
+      working-directory: ${{ inputs.source-directory }}/dist
+      run: cp -- ${{ inputs.stylesheet }} .
