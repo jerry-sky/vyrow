@@ -1,5 +1,8 @@
 name: 'VYROW'
 description: 'Render all Markdown documents in your repository into HTML documents.'
+branding:
+  color: purple
+  icon: cast
 
 inputs:
   source-directory:
