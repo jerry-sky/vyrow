@@ -13,17 +13,17 @@ inputs:
   pandoc-script:
     description: 'The script that runs the `pandoc` program. You can provide a path to your own script that runs `pandoc` differently.'
     required: true
-    default: ${{ github.action_path }}/pandoc.sh
+    default: __DEFAULT
 
   pandoc-template:
     description: 'The pandoc HTML template.'
     required: true
-    default: ${{ github.action_path }}/template/pandoc-template.html
+    default: __DEFAULT
 
   stylesheet:
     description: 'The stylesheet file to use for the rendered website.'
     required: true
-    default: ${{ github.action_path }}/template/style.css
+    default: __DEFAULT
 
   stylesheet-base-href:
     description: 'Because all links in the Markdown documents need to stay relative we cannot add the `<base />` tag in the `<head>` element of a single output document. Instead, we can prefix only the CSS stylesheet file to behave appropriately. More in the ‹readme› of the repository of this GH Action.'
@@ -33,7 +33,7 @@ inputs:
   head:
     description: 'A file that contains some additional HTML data to input into `<head>`.'
     required: true
-    default: ${{ github.action_path }}/template/head.html
+    default: __DEFAULT
 
   mathjax:
     description: 'The URL path to the MathJax JS script that enables the documents to have LaTeX markup in them.'
@@ -55,18 +55,46 @@ runs:
         ls -A | grep -v '^dist$' | grep -v '^.git$' |
         xargs -d '\n' cp -r -t 'dist' --
 
+    - id: vars
+      name: 'Process input variables'
+      shell: bash
+      run: | # process the variables; because the `github.action_path` cannot be used in the `default` fields of the parameters’ definition we have to apply default values manually
+        pandoc_script="${{ inputs.pandoc-script }}"
+        if [ "$pandoc_script" = "__DEFAULT" ]; then
+          pandoc_script="${{ github.action_path }}/pandoc.sh"
+        fi
+        echo "::set-output name=pandoc-script::$pandoc_script"
+
+        pandoc_template="${{ inputs.pandoc-template }}"
+        if [ "$pandoc_template" = "__DEFAULT" ]; then
+          pandoc_template="${{ github.action_path }}/template/pandoc-template.html"
+        fi
+        echo "::set-output name=pandoc-template::$pandoc_template"
+
+        stylesheet="${{ inputs.stylesheet }}"
+        if [ "$stylesheet" = "__DEFAULT" ]; then
+          stylesheet="${{ github.action_path }}/template/style.css"
+        fi
+        echo "::set-output name=stylesheet::$stylesheet"
+
+        head="${{ inputs.head }}"
+        if [ "$head" = "__DEFAULT" ]; then
+          head="${{ github.action_path }}/template/head.html"
+        fi
+        echo "::set-output name=head::$head"
+
     - name: 'Render the Markdown documents'
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
       run: |
-        tmp="${{ inputs.stylesheet }}"
+        tmp="${{ steps.vars.outputs.stylesheet }}"
         find . -type f | grep '.md$' |
         while read file; do
-          ${{ inputs.pandoc-script }} \
+          ${{ steps.vars.outputs.pandoc-script }} \
             "$file" \
-            "${{ inputs.pandoc-template }}" \
+            "${{ steps.vars.outputs.pandoc-template }}" \
             "${{ inputs.stylesheet-base-href }}${tmp##*/}" \
-            "${{ inputs.head }}" \
+            "${{ steps.vars.outputs.head }}" \
             "${{ inputs.mathjax }}" \
               > "${file%???}"".html"
         done
@@ -102,4 +130,4 @@ runs:
     - name: 'Add the stylesheet file'
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
-      run: cp -- ${{ inputs.stylesheet }} .
+      run: cp -- ${{ steps.vars.outputs.stylesheet }} .
