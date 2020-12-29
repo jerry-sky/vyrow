@@ -48,6 +48,7 @@ runs:
       working-directory: ${{ inputs.source-directory }}
       shell: bash
       run: | # copy all files that are not the `dist` directory itself or the `.git` directory
+        mkdir -p dist
         ls -A | grep -v '^dist$' | grep -v '^.git$' |
         xargs -d '\n' cp -r -t 'dist' --
 
@@ -55,7 +56,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
       run: |
-        find . -type f | grep .md |
+        find . -type f | grep '.md$' |
         while read file; do
           ${{ inputs.pandoc-script }} \
             "$file" \
@@ -70,16 +71,15 @@ runs:
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
       run: |
-        find . -type f | grep .md |
+        find . -type f | grep '.md$' |
         xargs -d '\n' rm --
-        done
 
     - name: 'Fix all `.md` links'
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
       # links are without the `.html` at the end — GH Pages handles it
       run: |
-        find . -type f | grep .html |
+        find . -type f | grep '.html$' |
         while read file; do
           perl -i -pe 's/(")([^"]+)(\.md")/"$2"/gm' -- "$file"
         done
@@ -90,7 +90,7 @@ runs:
       run: |
         index_file="$(ls -A | grep -iE readme\.html)"
         if [ -n "$index_file" ]; then
-          mv $(ls -A | grep -iE readme\.html) index.html
+          mv -- "$index_file" index.html
         else
           echo "::warning::missing the main readme file thus no index.html has been generated"
         fi
