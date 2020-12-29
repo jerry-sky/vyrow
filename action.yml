@@ -59,12 +59,13 @@ runs:
       shell: bash
       working-directory: ${{ inputs.source-directory }}/dist
       run: |
+        tmp="${{ inputs.stylesheet }}"
         find . -type f | grep '.md$' |
         while read file; do
           ${{ inputs.pandoc-script }} \
             "$file" \
             "${{ inputs.pandoc-template }}" \
-            "${{ inputs.stylesheet-base-href }}${${{ inputs.stylesheet }}##*/}" \
+            "${{ inputs.stylesheet-base-href }}${tmp##*/}" \
             "${{ inputs.head }}" \
             "${{ inputs.mathjax }}" \
               > "${file%???}"".html"
