@@ -113,7 +113,7 @@ runs:
       run: |
         find . -type f | grep '.html$' |
         while read file; do
-          perl -i -pe 's/(")([^"]+)(\.md")/"$2"/gm' -- "$file"
+          perl -i -pe 's/(")([^"]+)(\.md)(\#[^"]+)?(")/"$2$4"/gm' -- "$file"
         done
 
     - name: 'Rename the main readme file'
