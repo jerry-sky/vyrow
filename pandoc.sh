@@ -11,6 +11,9 @@ stylesheet_filename="$3"
 # path to the headers file (additional headers to be included inside the `<head>` element in the output HTML document)
 headers="$4"
 
+# get the script running directory
+dir="${BASH_SOURCE%/*}"
+
 # first, prerender the document into JSON
 # then, use `pandoc-katex` to prerender LaTeX
 # finally, render the document to HTML
@@ -18,7 +21,7 @@ pandoc "$input_file" \
     --standalone \
     --from markdown+yaml_metadata_block \
     --to json \
-        | "${BASH_SOURCE%/*}"/pandoc-katex \
+        | "$dir"/pandoc-katex \
             | pandoc \
                 --from json \
                 --to html \
