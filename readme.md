@@ -23,7 +23,12 @@
 
 Some repositories rely heavily on text-based content, meaning they have very little source code but a lot of human-readable documents.
 
-Examples of such repositories are my repository notebooks: e.g. my [`personal-notebook`](https://personal-notebook.jerry-sky.me) where almost all the files are Markdown documents and there are no source files that are compilable or runnable apart from the `config` directory where I keep my settings, setup scripts and such.
+Examples of such repositories are my repository notebooks:
+
+- [`personal-notebook`](https://personal.jerry-sky.me)
+- [`academic-notebook`](https://academic.jerry-sky.me)
+
+where almost all the files are Markdown documents and there are no source files that are compilable or runnable apart from the `config` directory where I keep my settings, setup scripts and such.
 
 Of course, it does not matter what is the ratio of source files to document files — this little tool is useful when it comes to creating websites from Markdown documents already present in the repository.
 
