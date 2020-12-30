@@ -1,11 +1,3 @@
----
-lang: 'en-GB'
-pagetitle: 'VYROW — View Your Repository On the Web'
-author: 'Jerry Sky'
-description: 'This GH Action takes all Markdown documents from a given repository and renders them into HTML documents. The output may be used as web representation of the repository.'
-keywords: 'vyrow, view, web, html, markdown, repository, gh actions, github, actions, render, convert, document, pandoc, website'
----
-
 # VYROW — View Your Repository On the Web
 
 *This GH Action takes all Markdown documents from a given repository and renders them into HTML documents. The output may be used as web representation of the repository.*
@@ -13,16 +5,17 @@ keywords: 'vyrow, view, web, html, markdown, repository, gh actions, github, act
 ---
 
 - [1. Motivation](#1-motivation)
-- [2. How to use](#2-how-to-use)
-    - [2.1. Parameters](#21-parameters)
-        - [2.1.1. `source-directory`](#211-source-directory)
-        - [2.1.2. `pandoc-script`](#212-pandoc-script)
-        - [2.1.3. `pandoc-template`](#213-pandoc-template)
-        - [2.1.4. `stylesheet`](#214-stylesheet)
-        - [2.1.5. `stylesheet-base-href`](#215-stylesheet-base-href)
-        - [2.1.6. `head`](#216-head)
-    - [2.2. General use-case](#22-general-use-case)
-- [3. Some remarks](#3-some-remarks)
+- [2. How does it work](#2-how-does-it-work)
+- [3. How to use](#3-how-to-use)
+    - [3.1. Parameters](#31-parameters)
+        - [3.1.1. `source-directory`](#311-source-directory)
+        - [3.1.2. `pandoc-script`](#312-pandoc-script)
+        - [3.1.3. `pandoc-template`](#313-pandoc-template)
+        - [3.1.4. `stylesheet`](#314-stylesheet)
+        - [3.1.5. `stylesheet-base-href`](#315-stylesheet-base-href)
+        - [3.1.6. `head`](#316-head)
+    - [3.2. General use-case](#32-general-use-case)
+- [4. Some remarks](#4-some-remarks)
 
 ---
 
@@ -36,7 +29,18 @@ Of course, it does not matter what is the ratio of source files to document file
 
 ---
 
-## 2. How to use
+## 2. How does it work
+
+This GH Action copies the whole input repository to a `dist` directory and then uses [`pandoc`](https://pandoc.org/) for rendering all Markdown documents contained in that repository.
+
+The main `readme.md` file (in the root of the repository) is treated as the landing page of the repository thus it is renamed to `index.html`.
+
+By default LaTeX expressions are rendered using the [`pandoc-katex`](https://github.com/xu-cheng/pandoc-katex) Rust package courtesy of [Cheng Xu](https://github.com/xu-cheng).\
+You can change that behaviour by providing your own script that calls `pandoc` differently.
+
+---
+
+## 3. How to use
 
 Use it as an GH Action in your workflow:
 ```yml
@@ -46,18 +50,18 @@ uses: 'jerry-sky/vyrow@v1.0'
 
 The action will create (if it does not already exist) a directory called `dist` inside the provided `source-directory` with HTML documents created from Markdown documents.
 
-### 2.1. Parameters
+### 3.1. Parameters
 
 All parameters are optional as all of them have their own default values.\
 However, it is encouraged to at least review what options are available that allow customization of this GH Action.
 
-#### 2.1.1. `source-directory`
+#### 3.1.1. `source-directory`
 
 Default value: `.`
 
 The source directory that contains all Markdown documents (and other files) that need to be converted into HTML documents.
 
-#### 2.1.2. `pandoc-script`
+#### 3.1.2. `pandoc-script`
 
 Default value: [the default script contained in this repository](pandoc.sh)
 
@@ -70,7 +74,7 @@ Please mind the order of the arguments provided for the script:
 3. the stylesheet file
 4. additional code to insert into `<head>` in the output document
 
-#### 2.1.3. `pandoc-template`
+#### 3.1.3. `pandoc-template`
 
 Default value: [template contained in this repository](template/pandoc-template.html)
 
@@ -78,13 +82,13 @@ The HTML template to use when conversion from Markdown to HTML occurs.
 
 Please refer to the [*Pandoc Manual*](https://pandoc.org/MANUAL.html#templates) for additional details.
 
-#### 2.1.4. `stylesheet`
+#### 3.1.4. `stylesheet`
 
 Default value: [template contained in this repository](template/style.css)
 
 CSS stylesheet that is used for displaying output documents.
 
-#### 2.1.5. `stylesheet-base-href`
+#### 3.1.5. `stylesheet-base-href`
 
 Default value: `/`
 
@@ -93,7 +97,7 @@ Thus, we want to apply this behaviour *only* to this stylesheet.
 
 This is useful if the website is anchored not on the root of the domain. For example, you could have the root URL of the website like `https://username.github.io/repository/`, so the `stylesheet-base-href` parameter should be set to `/repository/`.
 
-#### 2.1.6. `head`
+#### 3.1.6. `head`
 
 Default value: [template contained in this repository](template/head.html)
 
@@ -101,7 +105,7 @@ Contents of the provided file will be directly inserted into the `<head>` elemen
 
 ---
 
-### 2.2. General use-case
+### 3.2. General use-case
 
 Here is an example for how to use this GH Action that will meet needs of most people.
 
@@ -136,7 +140,7 @@ This use-case assumes you have `gh-pages` branch already created and GH Pages fe
 
 ---
 
-## 3. Some remarks
+## 4. Some remarks
 
 One can say that this is a glorified GitHub’s Wiki feature. However, I would argue that this way of handling Docs, Wikis or anything of that sort is just another way which gives more flexibility. This GH Action may be only one tool of many present in one’s website pipeline.
 
