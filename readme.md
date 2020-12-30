@@ -45,7 +45,7 @@ You can change that behaviour by providing your own script that calls `pandoc` d
 Use it as an GH Action in your workflow:
 ```yml
 name: 'render the repository as a website'
-uses: 'jerry-sky/vyrow@v1.0'
+uses: 'jerry-sky/vyrow@v0.5'
 ```
 
 The action will create (if it does not already exist) a directory called `dist` inside the provided `source-directory` with HTML documents created from Markdown documents.
@@ -120,7 +120,7 @@ Here is an example for how to use this GH Action that will meet needs of most pe
     ref: 'gh-pages'
 
 - name: 'render the repository as a website'
-  uses: 'jerry-sky/vyrow@v1.0'
+  uses: 'jerry-sky/vyrow@v0.5'
 
 - name: push the changes
   uses: EndBug/add-and-commit@v4.4.0
