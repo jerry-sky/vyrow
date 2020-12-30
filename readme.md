@@ -21,7 +21,6 @@ keywords: 'vyrow, view, web, html, markdown, repository, gh actions, github, act
         - [2.1.4. `stylesheet`](#214-stylesheet)
         - [2.1.5. `stylesheet-base-href`](#215-stylesheet-base-href)
         - [2.1.6. `head`](#216-head)
-        - [2.1.7. `mathjax`](#217-mathjax)
     - [2.2. General use-case](#22-general-use-case)
 - [3. Some remarks](#3-some-remarks)
 
@@ -70,7 +69,6 @@ Please mind the order of the arguments provided for the script:
 2. the pandoc HTML template
 3. the stylesheet file
 4. additional code to insert into `<head>` in the output document
-5. the URL of MathJax that avails LaTeX markup in the output document
 
 #### 2.1.3. `pandoc-template`
 
@@ -100,12 +98,6 @@ This is useful if the website is anchored not on the root of the domain. For exa
 Default value: [template contained in this repository](template/head.html)
 
 Contents of the provided file will be directly inserted into the `<head>` element of the output document.
-
-#### 2.1.7. `mathjax`
-
-Default value: `https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js`
-
-A URL that points to a JS script that enables LaTeX markup in the output documents.
 
 ---
 

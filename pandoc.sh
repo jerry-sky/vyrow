@@ -10,14 +10,19 @@ template="$2"
 stylesheet_filename="$3"
 # path to the headers file (additional headers to be included inside the `<head>` element in the output HTML document)
 headers="$4"
-# URL with the MathJax script that enables LaTeX markup on the website
-mathjax="$5"
 
+# first, prerender the document into JSON
+# then, use `pandoc-katex` to prerender LaTeX
+# finally, render the document to HTML
 pandoc "$input_file" \
-    --mathjax="$mathjax" \
     --standalone \
     --from markdown+yaml_metadata_block \
-    --to html \
-    --template "$template" \
-    --css "$stylesheet_filename" \
-    -H "$headers"
+    --to json \
+        | "${BASH_SOURCE%/*}"/pandoc-katex \
+            | pandoc \
+                --from json \
+                --to html \
+                --template "$template" \
+                --css "$stylesheet_filename" \
+                --standalone \
+                -H "$headers"
