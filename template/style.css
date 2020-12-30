@@ -24,6 +24,12 @@ header#title-block-header > .author > span.author:last-child::after {
     content: ''
 }
 
+img {
+    max-width: 100%;
+    display: block;
+    margin: auto;
+}
+
 /* support most screen sizes */
 /* very large screens (TVs and other) */
 body {
