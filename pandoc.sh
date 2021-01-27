@@ -17,7 +17,7 @@ dir="${BASH_SOURCE%/*}"
 # finally, render the document into HTML
 pandoc "$input_file" \
     --standalone \
-    --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline \
+    --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline+gfm_auto_identifiers \
     --to json \
         | "$dir"/pandoc-katex \
             | pandoc \
