@@ -1,0 +1,34 @@
+# This workflow ensures that the default Markdown document renderer script works properly.
+
+name: 'Tests'
+
+on:
+  push:
+    branches: [master]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout `master`'
+        uses: actions/checkout@v2
+
+      - name: 'Setup Python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.5'
+
+      - name: 'Install `pandoc`'
+        shell: bash
+        run: ./install-pandoc.sh
+
+      - name: 'Install `pandoc-katex`'
+        shell: bash
+        run: ./install-pandoc-katex.sh
+
+      - name: 'Run tests'
+        shell: bash
+        working-directory: './tests'
+        run: python3 test.py
