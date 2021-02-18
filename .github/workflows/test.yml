@@ -28,6 +28,11 @@ jobs:
         shell: bash
         run: ./install-pandoc-katex.sh
 
+      - name: 'Install `lxml` package for Python'
+        shell: bash
+        working-directory: './tests'
+        run: python3 -m pip install -r requirements.txt
+
       - name: 'Run tests'
         shell: bash
         working-directory: './tests'
