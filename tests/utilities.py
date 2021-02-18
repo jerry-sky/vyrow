@@ -14,7 +14,7 @@ def current_path() -> str:
     '''
     Returns the path to the current script running directory.
     '''
-    return os.path.dirname(argv[0])
+    return os.path.dirname(argv[0]) or '.'
 
 
 def parent_path() -> str:
