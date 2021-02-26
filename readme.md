@@ -16,6 +16,7 @@
         - [3.1.6. `head`](#316-head)
     - [3.2. General use-case](#32-general-use-case)
 - [4. Some remarks](#4-some-remarks)
+- [5. Licence](#5-licence)
 
 ---
 
@@ -28,26 +29,25 @@ Examples of such repositories are my repository notebooks:
 - [`personal-notebook`](https://personal.jerry-sky.me)
 - [`academic-notebook`](https://academic.jerry-sky.me)
 
-where almost all the files are Markdown documents and there are no source files that are compilable or runnable apart from the `config` directory where I keep my settings, setup scripts and such.
-
 Of course, it does not matter what is the ratio of source files to document files — this little tool is useful when it comes to creating websites from Markdown documents already present in the repository.
 
 ---
 
 ## 2. How does it work
 
-This GH Action copies the whole input repository to a `dist` directory and then uses [`pandoc`](https://pandoc.org/) for rendering all Markdown documents contained in that repository.
+This GH Action copies the whole input repository to the `dist` directory and then uses [Pandoc](https://pandoc.org/) for rendering all Markdown documents contained in that repository.
 
 The main `readme.md` file (in the root of the repository) is treated as the landing page of the repository thus it is renamed to `index.html`.
 
-By default LaTeX expressions are rendered using the [`pandoc-katex`](https://github.com/xu-cheng/pandoc-katex) Rust package courtesy of [Cheng Xu](https://github.com/xu-cheng).\
-You can change that behaviour by providing your own script that calls `pandoc` differently.
+By default, LaTeX expressions are rendered using the [Pandoc-KaTeX](https://github.com/xu-cheng/pandoc-katex) Rust package.\
+You can change that behaviour by providing your own script that calls Pandoc differently.
 
 ---
 
 ## 3. How to use
 
 Use it as an GH Action in your workflow:
+
 ```yml
 name: 'render the repository as a website'
 uses: 'jerry-sky/vyrow@v0.5.4'
@@ -148,5 +148,11 @@ This use-case assumes you have `gh-pages` branch already created and GH Pages fe
 ## 4. Some remarks
 
 One can say that this is a glorified GitHub’s Wiki feature. However, I would argue that this way of handling Docs, Wikis or anything of that sort is just another way which gives more flexibility. This GH Action may be only one tool of many present in one’s website pipeline.
+
+---
+
+## 5. Licence
+
+See [LICENSE.md](LICENSE.md) for details about licencing of this GH Action.
 
 ---
