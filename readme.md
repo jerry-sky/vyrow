@@ -14,6 +14,7 @@
         - [3.1.4. `stylesheet`](#314-stylesheet)
         - [3.1.5. `stylesheet-base-href`](#315-stylesheet-base-href)
         - [3.1.6. `head`](#316-head)
+        - [3.1.7. `copy-master`](#317-copy-master)
     - [3.2. General use-case](#32-general-use-case)
 - [4. Some remarks](#4-some-remarks)
 - [5. Licence](#5-licence)
@@ -107,6 +108,16 @@ This is useful if the website is anchored not on the root of the domain. For exa
 Default value: [template contained in this repository](template/head.html)
 
 Contents of the provided file will be directly inserted into the `<head>` element of the output document.
+
+---
+
+#### 3.1.7. `copy-master`
+
+Default value: `'false'`
+
+Copy all files in the master branch to the `dist` directory first. Turned off by default.
+
+*To turn on this feature please provide a string, namely `'true'`, not a boolean value.*
 
 ---
 

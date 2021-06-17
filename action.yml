@@ -35,6 +35,11 @@ inputs:
     required: true
     default: __DEFAULT
 
+  copy-master:
+    description: 'Copy all files in the master branch to the `dist` directory first. Turned off by default.'
+    required: true
+    default: 'false'
+
 runs:
   using: 'composite'
   steps:
@@ -48,13 +53,15 @@ runs:
       shell: bash
       run: ./install-pandoc-katex.sh
 
-    - name: 'Copy all documents (and other files as well) to the `dist` directory'
+    - name: 'Conditionally copy all documents (and other files as well) to the `dist` directory'
       working-directory: ${{ inputs.source-directory }}
       shell: bash
       run: | # copy all files that are not the `dist` directory itself or the `.git` directory
-        mkdir -p dist
-        ls -A | grep -v '^dist$' | grep -v '^.git$' |
-        xargs -d '\n' cp -r -t 'dist' --
+        if [ "${{ inputs.copy-master }}" -eq "true" ]; then
+          mkdir -p dist
+          ls -A | grep -v '^dist$' | grep -v '^.git$' |
+          xargs -d '\n' cp -r -t 'dist' --
+        fi
 
     - id: vars
       name: 'Process input variables'
