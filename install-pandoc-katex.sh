@@ -1,14 +1,14 @@
 #!/bin/bash
 
-archive="pandoc-katex-0.1.4-x86_64-unknown-linux-gnu.tar.gz"
+archive="pandoc-katex.tar.gz"
 
-# download the 0.1.4 release
-wget https://github.com/xu-cheng/pandoc-katex/releases/download/0.1.4/"$archive"
+version="0.1.6"
 
-# unpack the binary
-tar -zxf "$archive" ./bin/pandoc-katex --strip-components 2
+# download the archive containing the executable
+curl -L --output "$archive" "https://github.com/xu-cheng/pandoc-katex/releases/download/$version/pandoc-katex-$version-x86_64-unknown-linux-gnu.tar.gz"
+
+# unpack the archive
+tar -x "./bin/pandoc-katex" --strip-components=2 -f "$archive"
 
 # remove the archive
 rm "$archive"
-
-echo 'the binary `pandoc-katex` has been installed locally'

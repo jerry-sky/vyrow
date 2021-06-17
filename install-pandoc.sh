@@ -1,12 +1,14 @@
 #!/bin/bash
 
-deb="pandoc-2.11.3.2-1-amd64.deb"
+archive="pandoc.tar.gz"
 
-# download the 2.11.3.2 release
-wget "https://github.com/jgm/pandoc/releases/download/2.11.3.2/$deb"
+version="2.14.0.2"
 
-# install it
-sudo dpkg -i "$deb"
+# download the archive containing the executable
+curl -L --output "$archive" "https://github.com/jgm/pandoc/releases/download/$version/pandoc-$version-linux-amd64.tar.gz"
 
-# remove the package
-rm "$deb"
+# unpack the archive
+tar -x "pandoc-$version/bin/pandoc" --strip-components=2 -f "$archive"
+
+# remove the archive
+rm "$archive"

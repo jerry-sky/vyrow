@@ -15,12 +15,12 @@ dir="${BASH_SOURCE%/*}"
 # first, prerender the document into JSON
 # then, use `pandoc-katex` to prerender LaTeX
 # finally, render the document into HTML
-pandoc "$input_file" \
+"$dir"/pandoc "$input_file" \
     --standalone \
     --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline+gfm_auto_identifiers \
     --to json \
         | "$dir"/pandoc-katex \
-            | pandoc \
+            | "$dir"/pandoc \
                 --from json \
                 --to html \
                 --template "$template" \
