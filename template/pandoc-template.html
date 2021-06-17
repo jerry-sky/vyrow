@@ -51,12 +51,14 @@ $if(title)$
 $if(subtitle)$
 <p class="subtitle">$subtitle$</p>
 $endif$
+$if(author)$
 <p class="author">
     <span>by </span>
 $for(author)$
     <span class="author">$author$</span>
 $endfor$
 </p>
+$endif$
 $if(date)$
 <p class="date">$date$</p>
 $endif$
