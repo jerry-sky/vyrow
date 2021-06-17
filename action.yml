@@ -57,7 +57,7 @@ runs:
       working-directory: ${{ inputs.source-directory }}
       shell: bash
       run: | # copy all files that are not the `dist` directory itself or the `.git` directory
-        if [ "${{ inputs.copy-master }}" -eq "true" ]; then
+        if [ "${{ inputs.copy-master }}" = "true" ]; then
           mkdir -p dist
           ls -A | grep -v '^dist$' | grep -v '^.git$' |
           xargs -d '\n' cp -r -t 'dist' --

@@ -17,7 +17,8 @@
         - [3.1.7. `copy-master`](#317-copy-master)
     - [3.2. General use-case](#32-general-use-case)
 - [4. Some remarks](#4-some-remarks)
-- [5. Licence](#5-licence)
+- [5. Changes in version `0.6.0`](#5-changes-in-version-060)
+- [6. Licence](#6-licence)
 
 ---
 
@@ -126,25 +127,54 @@ Copy all files in the master branch to the `dist` directory first. Turned off by
 Here is an example for how to use this GH Action that will meet needs of most people.
 
 ```yml
-- name: 'Checkout `master`'
-  uses: actions/checkout@v2.3.4
+# This workflow renders all Markdown documents into a HTML website.
 
-- name: 'Checkout `gh-pages` into a separate directory'
-  uses: actions/checkout@v2.3.4
-  with:
-    path: 'dist'
-    ref: 'gh-pages'
+name: 'Build the website'
 
-- name: 'render the repository as a website'
-  uses: 'jerry-sky/vyrow@v0.5.4'
+on:
+  push:
+    branches: [master]
 
-- name: push the changes
-  uses: EndBug/add-and-commit@v7.0.0
-  with:
-    message: "deployed"
-    branch: 'gh-pages'
-    cwd: './dist/'
-    add: '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout the `master` branch
+      - name: 'Checkout `master`'
+        uses: actions/checkout@v2.3.4
+
+      # prepare the `gh-pages` branch to publish the repository as a website
+      - name: 'Checkout `gh-pages` into a separate directory'
+        uses: actions/checkout@v2.3.4
+        with:
+          path: 'dist'
+          ref: 'gh-pages'
+
+      # use this action to render all Markdown documents into HTML documents
+      - name: 'Render the repository as a website'
+        uses: 'jerry-sky/vyrow@v0.6.0'
+        with:
+          # copy all files in the master branch to the `dist` directory
+          # to make all files visible to the public
+          # you can turn off this feature and cherry-pick yourself
+          # only those files that you need to publish
+          copy-master: 'true'
+
+      # get current time to mark it in the deployment commit message
+      - name: 'Get current time'
+        uses: gerred/actions/current-time@master
+        id: current-time
+
+      # deploy the result to the GH Pages
+      - name: push the changes
+        uses: EndBug/add-and-commit@v7.2.1
+        with:
+          message: "deployed on ${{ steps.current-time.outputs.time }}"
+          branch: 'gh-pages'
+          cwd: './dist/'
+          add: '*'
+          default_author: github_actions
 
 ```
 
@@ -162,7 +192,17 @@ One can say that this is a glorified GitHub’s Wiki feature. However, I would a
 
 ---
 
-## 5. Licence
+## 5. Changes in version `0.6.0`
+
+In version `0.6.0` VYROW will **not** copy all files from the master branch
+to the `dist` directory automatically by default.
+This feature is now **disabled** by default.
+
+To enable it please see the [`copy-master`](#317-copy-master) parameter section.
+
+---
+
+## 6. Licence
 
 See [LICENSE.md](LICENSE.md) for details about licencing of this GH Action.
 
