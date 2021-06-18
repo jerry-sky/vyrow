@@ -136,5 +136,4 @@ runs:
 
     - name: 'Add the stylesheet file'
       shell: bash
-      working-directory: ${{ inputs.source-directory }}/dist
-      run: cp -- ${{ steps.vars.outputs.stylesheet }} .
+      run: cp -- ${{ steps.vars.outputs.stylesheet }} ${{ inputs.source-directory }}/dist
