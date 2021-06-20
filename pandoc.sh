@@ -95,4 +95,6 @@ while read file; do
                     --standalone \
                     -H "$headers" \
                         > "${file%???}"".html" # replace `.md` with `.html`
+    # remove the raw Markdown document
+    rm "$file"
 done
