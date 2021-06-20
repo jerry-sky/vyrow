@@ -79,10 +79,31 @@ cp -- "$stylesheet" "$working_dir"
 # convert all Markdown documents in the working directory to HTML documents
 find "$working_dir" -type f | grep '\.md$' |
 while read file; do
+    # don’t modify the metadata by default
+    metadata="METADATA"
+    # check if the document has a YAML metadata block
+    if [ "$(head -n1 "$file")" != "---" ]; then
+        # extract the first h1 value to set as a page title
+        # (`xargs` is here for whitespace trimming)
+        title=$(perl -0777 -pe 's/(\s*\#\s?)(.+)(\s*)$/$2/gm' "$file" | head -n1 | xargs)
+        if [ -n "$title" ]; then
+            # extracted header title is not empty
+            # add a page title
+            metadata="pagetitle=$title"
+        else
+            # if no header title found use filename
+            # strip directory
+            title="${file##*/}"
+            # strip extension (only the last one)
+            title="${title%.*}"
+            metadata="pagetitle=$title"
+        fi
+    fi
     # first, prerender the document into JSON
     # then, use `pandoc-katex` to prerender LaTeX
     # finally, render the document into HTML and save it
     "$dir"/pandoc "$file" \
+        --metadata "$metadata" \
         --standalone \
         --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline+gfm_auto_identifiers \
         --to json \
