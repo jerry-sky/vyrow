@@ -69,11 +69,16 @@ def simple():
     fc = file_contents('simple.html')
     tree = HTML.fromstring(fc)
 
+    document_title = 'Simple example document'
+
+    # check the document title
+    assert tree.xpath(f'{HEAD}/title/text()')[0] == document_title
+
     # check if the document contains only one header
     main_header = __one_h1_element(tree)
 
     # check the header contents
-    assert main_header.text_content() == 'Simple example document'
+    assert main_header.text_content() == document_title
 
     # check the first paragraph
     assert tree.xpath(f'{BODY}/p/em/text()')[0] == 'A simple test document.'
