@@ -20,7 +20,7 @@ BODY = '/html/body'
 
 # error reporting
 def throw(msg: str, noexit=False) -> None:
-    print('\033[1mTest failed:\033[0m', msg, file=stderr)
+    print('::error::\033[1mTest failed:\033[0m', msg, file=stderr)
     if not noexit:
         exit(1)
 
@@ -60,9 +60,10 @@ def __one_h1_element(tree: HTMLElement) -> HTMLElement:
     return main_header[0]
 
 
+# tests for some exemplary Markdown documents
 def simple():
     '''
-    `simple.md`
+    simple.md
     '''
     # get the file contents
     fc = file_contents('simple.html')
@@ -75,7 +76,7 @@ def simple():
     assert main_header.text_content() == 'Simple example document'
 
     # check the first paragraph
-    tree.xpath(f'{BODY}/p/em/text()')[0] == 'A simple test document.'
+    assert tree.xpath(f'{BODY}/p/em/text()')[0] == 'A simple test document.'
 
     # check the ids of the headers
     assert tree.xpath(f'{BODY}//@id') == [
