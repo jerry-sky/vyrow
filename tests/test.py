@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-from typing import List
+from typing import List, Tuple
+from types import FunctionType
 from os import system as _execute, path as os_path, listdir as ls
 from utilities import parent_path, current_path
 import suite
+from inspect import getmembers, isfunction
 
 pjoin = os_path.join
 
@@ -12,26 +14,33 @@ def execute(*args: List[str]) -> None:
     _execute(r' '.join(args))
 
 
-# get all the paths of the necessary files
-pandoc_script_path = pjoin(parent_path(), 'pandoc.sh')
-template_head = pjoin(parent_path(), 'template', 'head.html')
-template_pandoc = pjoin(parent_path(), 'template', 'pandoc-template.html')
-template_style = pjoin(parent_path(), 'template', 'style.css')
+pandoc_script = pjoin(parent_path(), 'pandoc.sh')
 
+execute(
+    pandoc_script,
+    '--keep-original',
+    '--dont-copy-stylesheet',
+    '-d documents',
+)
 
-for doc in ls(pjoin(current_path(), 'documents')):
-    # go through every Markdown test document
-    if doc.endswith('.md'):
-        doc_name = doc
-        doc = pjoin(current_path(), 'documents', doc_name)
-
-        # run the program
-        execute(
-            pandoc_script_path, # run the pandoc script
-            doc, # on this test document file
-            template_pandoc, template_style, template_head, # with default template files
-            '>', doc.replace('.md', '.html') # and save the output to an HTML file
+# get all tests in the test suite
+# format: (function, function doc)
+tests: List[Tuple[FunctionType, str]] = filter(
+    # filter out those that do not contain references to Markdown documents
+    lambda fff: fff[1].endswith('.md'),
+    [
+        # get all functions with their docs
+        (ff[1], ff[1].__doc__.strip()) if ff[1].__doc__ is not None else (None, '') for ff in filter(
+            lambda f: isfunction(f[1]),
+            getmembers(suite)
         )
+    ]
+)
 
-        # execute the test suite for this particular file
-        getattr(suite, doc_name.replace('.md', ''))()
+for t in tests:
+    test = t[0]
+    doc = t[1]
+    # execute test
+    print(doc, 'initialised')
+    test()
+    print(doc, 'ran successfully')
