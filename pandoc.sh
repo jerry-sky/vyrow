@@ -11,9 +11,10 @@ if [ "$?" -ne 4 ]; then
 fi
 
 OPTIONS="d:t:s:h:r:"
+LONG_OPTIONS="keep-original,dont-copy-stylesheet"
 
 # parse given options (switches)
-PARSED=$(getopt --options=$OPTIONS --name "$0" -- "$@")
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONG_OPTIONS --name "$0" -- "$@")
 if [[ "$?" -ne 0 ]]; then
     # invalid options detected
     exit 2
@@ -31,6 +32,10 @@ website_root="/"
 headers="$dir/template/head.html"
 # the directory that contains the Markdown documents to render
 working_dir=""
+# do not remove the original Markdown document (off by default, remove originals by default)
+keep_original=""
+# do not copy the stylesheet file (off by default, copy the stylesheet by default)
+dont_copy_stylesheet=""
 
 while true; do
     case "$1" in
@@ -54,6 +59,14 @@ while true; do
             website_root="$2"
             shift 2
             ;;
+        --keep-original)
+            keep_original="y"
+            shift 1
+            ;;
+        --dont-copy-stylesheet)
+            dont_copy_stylesheet="y"
+            shift 1
+            ;;
         --)
             shift
             break
@@ -74,7 +87,9 @@ working_dir=$(readlink -f -- "$working_dir")
 mkdir -p "$working_dir"
 
 # copy the stylesheet to the working directory
-cp -- "$stylesheet" "$working_dir"
+if [ -z "$dont_copy_stylesheet" ]; then
+    cp -- "$stylesheet" "$working_dir"
+fi
 
 # convert all Markdown documents in the working directory to HTML documents
 find "$working_dir" -type f | grep '\.md$' |
@@ -117,5 +132,7 @@ while read file; do
                     -H "$headers" \
                         > "${file%???}"".html" # replace `.md` with `.html`
     # remove the raw Markdown document
-    rm "$file"
+    if [ -z "$keep_original" ]; then
+        rm "$file"
+    fi
 done
