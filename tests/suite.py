@@ -1,16 +1,14 @@
 from lxml import html as HTML
-from utilities import file_contents as _file_contents, current_path
+from utilities import file_contents, current_path
 from os import path as os_path
-from sys import exit, stderr
-from types import TracebackType
-import traceback
+import unittest
 
 
 HTMLElement = HTML.HtmlElement
 
 
-def file_contents(filename: str) -> str:
-    return _file_contents(os_path.join(current_path(), 'documents', filename))
+def file_tree(filename: str):
+    return HTML.fromstring(file_contents(os_path.join(current_path(), 'documents', filename)))
 
 
 # XPath prefixes
@@ -18,99 +16,78 @@ HEAD = '/html/head'
 BODY = '/html/body'
 
 
-# error reporting
-def throw(msg: str, noexit=False) -> None:
-    print('::error::\033[1mTest failed:\033[0m', msg, file=stderr)
-    if not noexit:
-        exit(1)
-
-
-class AssertionError(BaseException):
-    def __init__(self, *args, **kwargs):
-        try:
-            # raise an exception just to initiate the exception reporting process
-            raise BaseException
-        except BaseException as e:
-            # ignore this fake exception
-            # extract the actual assertion exception
-            stack = traceback.extract_stack()
-            # the assertion exception in question will be second last,
-            # as the last exception in the stack is this fake exception
-            # raised above
-            err = stack[-2]
-            # pass along what actually happened
-            # pass the line where the assertion takes place
-            throw('assertion failed at line ' +
-                  str(err.lineno) + ': ' + err.line)
-
-
-# tests to perform upon test documents of the same name
-# e.g. file `simple.md` will be tested with function of name `simple`
-
-
-# some staple tests performed on all test documents
-def __one_h1_element(tree: HTMLElement) -> HTMLElement:
-
-    main_header = tree.xpath(f'{BODY}/*/h1')
-
-    if len(main_header) != 1:
-        print(main_header)
-        throw('number of `h1` headers are either zero or more than one')
-
-    return main_header[0]
-
-
-# tests for some exemplary Markdown documents
-def simple():
+class TestSuite(unittest.TestCase):
     '''
-    simple.md
+    Contains tests for some exemplary Markdown documents.
     '''
-    # get the file contents
-    fc = file_contents('simple.html')
-    tree = HTML.fromstring(fc)
 
-    document_title = 'Simple example document'
+    def main(self):
+        unittest.main()
 
-    # check the document title
-    assert tree.xpath(f'{HEAD}/title/text()')[0] == document_title
+    def __one_h1_element(self, tree: HTMLElement) -> HTMLElement:
+        '''
+        Asserts there is only one `h1` tag in the document
+        and returns it.
+        '''
+        main_header = tree.xpath(f'{BODY}/*/h1')
+        self.assertEqual(len(main_header), 1)
+        return main_header[0]
 
-    # check if the document contains only one header
-    main_header = __one_h1_element(tree)
+    def test_simple(self):
+        '''
+        simple.md
+        '''
+        tree = file_tree('simple.html')
 
-    # check the header contents
-    assert main_header.text_content() == document_title
+        document_title = 'Simple example document'
 
-    # check the first paragraph
-    assert tree.xpath(f'{BODY}/p/em/text()')[0] == 'A simple test document.'
+        # check the document title
+        self.assertEqual(tree.xpath(f'{HEAD}/title/text()')[0], document_title)
 
-    # check the ids of the headers
-    assert tree.xpath(f'{BODY}//@id') == [
-        'title-block-header',
-        '1-sub-header',
-        '11-smaller-sub-header',
-        '111-even-smaller-sub-header'
-    ]
+        # check if the document contains only one header
+        main_header = self.__one_h1_element(tree)
 
-    # partially check for the KaTeX maths
-    assert tree.xpath(f'{BODY}/p[2]//annotation/text()')[0] == '\n\\sum_{k=0}^n = 2^n.\n'
-    # check if parts of the math expression are present
-    math_spans = tree.xpath(f'{BODY}/p[2]//span[@class="katex-html"][1]//span/text()')
-    assert 'k' in math_spans
-    assert 'n' in math_spans
-    assert '=' in math_spans
-    assert '0' in math_spans
-    assert '∑' in math_spans
+        # check the header contents
+        self.assertEqual(main_header.text_content(), document_title)
 
-    # check the list
-    unordered_list = tree.xpath(f'{BODY}/ul')
-    # assert that there is such list
-    assert len(unordered_list) == 1
-    # assert that the list contains three elements
-    ul_items = tree.xpath(f'{BODY}/ul/li')
-    assert len(ul_items) == 3
+        # check the first paragraph
+        self.assertEqual(
+            tree.xpath(f'{BODY}/p/em/text()')[0],
+            'A simple test document.'
+        )
 
-    # same test with the ordered list
-    ordered_list = tree.xpath(f'{BODY}/ol')
-    assert len(ordered_list) == 1
-    ol_items = tree.xpath(f'{BODY}/ol/li')
-    assert len(ol_items) == 3
+        # check the ids of the headers
+        self.assertEqual(tree.xpath(f'{BODY}//@id'), [
+            'title-block-header',
+            '1-sub-header',
+            '11-smaller-sub-header',
+            '111-even-smaller-sub-header',
+        ])
+
+        # partially check for the KaTeX maths
+        self.assertEqual(
+            tree.xpath(f'{BODY}/p[2]//annotation/text()')[0],
+            '\n\\sum_{k=0}^n = 2^n.\n'
+        )
+        # check if parts of the math expression are present
+        math_spans = tree.xpath(
+            f'{BODY}/p[2]//span[@class="katex-html"][1]//span/text()')
+        self.assertIn('k', math_spans)
+        self.assertIn('n', math_spans)
+        self.assertIn('=', math_spans)
+        self.assertIn('0', math_spans)
+        self.assertIn('∑', math_spans)
+
+        # check the list
+        unordered_list = tree.xpath(f'{BODY}/ul')
+        # assert that there is such list
+        self.assertEqual(len(unordered_list), 1)
+        # assert that the list contains three elements
+        ul_items = tree.xpath(f'{BODY}/ul/li')
+        self.assertEqual(len(ul_items), 3)
+
+        # same test with the ordered list
+        ordered_list = tree.xpath(f'{BODY}/ol')
+        self.assertEqual(len(ordered_list), 1)
+        ol_items = tree.xpath(f'{BODY}/ol/li')
+        self.assertEqual(len(ol_items), 3)
