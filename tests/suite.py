@@ -91,3 +91,44 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(len(ordered_list), 1)
         ol_items = tree.xpath(f'{BODY}/ol/li')
         self.assertEqual(len(ol_items), 3)
+
+    def test_no_metadata(self):
+        '''
+        A document with no metadata.md
+        '''
+        tree = file_tree('A document with no metadata.html')
+
+        document_title = 'A document with no metadata'
+
+        self.assertEqual(tree.xpath(f'{HEAD}/title/text()')[0], document_title)
+
+        self.assertEqual(tree.xpath(f'{BODY}/p[1]/text()')[0], 'content')
+
+        self.assertEqual(
+            tree.xpath(f'{BODY}/p[2]/em/text()')[0],
+            'some more content'
+        )
+
+        self.assertEqual(
+            tree.xpath(
+                f'{BODY}/p[3]/span[@class = "katex"]//semantics//mtext//text()')[0],
+            'LaTeX'
+        )
+
+        self.assertEqual(
+            tree.xpath(
+                f'{BODY}/p[3]/span[@class = "katex"]//span[@class = "katex-html"]//text()'),
+            list('LATE\u200bX')
+        )
+
+    def test_h1_header_title(self):
+        '''
+        Document only with a H1 header.md
+        '''
+        tree = file_tree('Document only with a H1 header.html')
+
+        document_title = 'Document title in a header H1'
+
+        self.assertEqual(tree.xpath(f'{HEAD}/title/text()')[0], document_title)
+
+        self.assertEqual(tree.xpath(f'{BODY}/p[1]/text()')[0], 'content')
