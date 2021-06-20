@@ -95,30 +95,12 @@ runs:
 
         "$command" "$d" "$r" "$h" "$s" "$t"
 
-    - name: 'Remove all raw Markdown documents (HTML documents have already been generated)'
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        find . -type f | grep '\.md$' |
-        xargs -d '\n' rm --
-
     - name: 'Fix all `.md` links'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      # links are without the `.html` at the end — GH Pages handles it
-      run: |
-        find . -type f | grep '\.html$' |
-        while read file; do
-          perl -i -pe 's/(")([^"]+)(\.md)(\#[^"]+)?(")/"$2$4"/gm' -- "$file"
-        done
+      run: "${{ github.action_path }}"/fix-links.sh
 
     - name: 'Rename the main readme file'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: |
-        index_file="$(ls | grep -iE ^readme\.html$ | head -n1)"
-        if [ -n "$index_file" ]; then
-          mv -- "$index_file" index.html
-        else
-          echo "::warning::missing the main readme file thus no index.html has been generated"
-        fi
+      run: "${{ github.action_path}}"/rename-index.sh
