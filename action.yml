@@ -5,40 +5,34 @@ branding:
   icon: cast
 
 inputs:
-  source-directory:
-    description: 'The source directory containing the source Markdown files.'
+  working-directory:
+    description: 'The directory containing the source Markdown documents that will be converted into output HTML documents.'
     required: true
-    default: '.'
+    default: 'dist'
 
   pandoc-script:
-    description: 'The script that runs the `pandoc` program. You can provide a path to your own script that runs `pandoc` differently.'
-    required: true
-    default: __DEFAULT
+    description: 'Custom script that runs the `pandoc` program.'
+    required: false
 
   pandoc-template:
-    description: 'The pandoc HTML template.'
-    required: true
-    default: __DEFAULT
+    description: 'Custom Pandoc HTML template.'
+    required: false
 
   stylesheet:
-    description: 'The stylesheet file to use for the rendered website.'
-    required: true
-    default: __DEFAULT
+    description: 'Custom stylesheet file to use for the rendered website.'
+    required: false
 
-  stylesheet-base-href:
-    description: 'Because all links in the Markdown documents need to stay relative we cannot add the `<base />` tag in the `<head>` element of a single output document. Instead, we can prefix only the CSS stylesheet file to behave appropriately. More in the ‹readme› of the repository of this GH Action.'
-    required: true
-    default: '/'
+  website-root:
+    description: 'Custom website root directory.'
+    required: false
 
   head:
-    description: 'A file that contains some additional HTML data to input into `<head>`.'
-    required: true
-    default: __DEFAULT
+    description: 'An additional file that contains some additional HTML data to input into `<head>`.'
+    required: false
 
-  copy-master:
-    description: 'Copy all files in the master branch to the `dist` directory first. Turned off by default.'
-    required: true
-    default: 'false'
+  copy-from:
+    description: 'Copy all files from given directory to the output directory to be included in the output website.'
+    required: false
 
 runs:
   using: 'composite'
@@ -53,87 +47,78 @@ runs:
       shell: bash
       run: ./install-pandoc-katex.sh
 
-    - name: 'Conditionally copy all documents (and other files as well) to the `dist` directory'
-      working-directory: ${{ inputs.source-directory }}
+    - name: 'Conditionally copy all files to the working directory'
       shell: bash
-      run: | # copy all files that are not the `dist` directory itself or the `.git` directory
-        if [ "${{ inputs.copy-master }}" = "true" ]; then
-          mkdir -p dist
-          ls -A | grep -v '^dist$' | grep -v '^.git$' |
-          xargs -d '\n' cp -r -t 'dist' --
-        fi
+      run: |
+        wrk_dir="${{ inputs.working-directory }}"
+        src_dir="${{ inputs.copy-from }}"
 
-    - id: vars
-      name: 'Process input variables'
-      shell: bash
-      run: | # process the variables; because the `github.action_path` cannot be used in the `default` fields of the parameters’ definition we have to apply default values manually
-        pandoc_script="${{ inputs.pandoc-script }}"
-        if [ "$pandoc_script" = "__DEFAULT" ]; then
-          pandoc_script="${{ github.action_path }}/pandoc.sh"
-        fi
-        echo "::set-output name=pandoc-script::$pandoc_script"
+        mkdir -p -- "$wrk_dir"
 
-        pandoc_template="${{ inputs.pandoc-template }}"
-        if [ "$pandoc_template" = "__DEFAULT" ]; then
-          pandoc_template="${{ github.action_path }}/template/pandoc-template.html"
-        fi
-        echo "::set-output name=pandoc-template::$pandoc_template"
-
-        stylesheet="${{ inputs.stylesheet }}"
-        if [ "$stylesheet" = "__DEFAULT" ]; then
-          stylesheet="${{ github.action_path }}/template/style.css"
-        fi
-        echo "::set-output name=stylesheet::$stylesheet"
-
-        head="${{ inputs.head }}"
-        if [ "$head" = "__DEFAULT" ]; then
-          head="${{ github.action_path }}/template/head.html"
-        fi
-        echo "::set-output name=head::$head"
+        "${{ github.action_path }}"/copy-from.sh "$wrk_dir" "$src_dir"
 
     - name: 'Render the Markdown documents'
       shell: bash
-      working-directory: ${{ inputs.source-directory }}/dist
+      # compose the Pandoc script command out of given inputs
       run: |
-        tmp="${{ steps.vars.outputs.stylesheet }}"
-        find . -type f | grep '.md$' |
-        while read file; do
-          ${{ steps.vars.outputs.pandoc-script }} \
-            "$file" \
-            "${{ steps.vars.outputs.pandoc-template }}" \
-            "${{ inputs.stylesheet-base-href }}${tmp##*/}" \
-            "${{ steps.vars.outputs.head }}" \
-              > "${file%???}"".html"
-        done
+        pandoc_script="${{ inputs.pandoc-script }}"
+        if [ -n "$pandoc_script" ]; then
+          command="$pandoc_script"
+        else
+          command="${{ github.action_path }}/pandoc.sh"
+        fi
+
+        working_directory="${{ inputs.working-directory }}"
+        if [ -n "$working_directory" ]; then
+          d="-d$working_directory"
+        fi
+
+        pandoc_template="${{ inputs.pandoc-template }}"
+        if [ -n "$pandoc_template" ]; then
+          t="-t$pandoc_template"
+        fi
+
+        stylesheet="${{ inputs.stylesheet }}"
+        if [ -n "$stylesheet" ]; then
+          s="-s$stylesheet"
+        fi
+
+        head="${{ inputs.head }}"
+        if [ -n "$head" ]; then
+          h="-h$head"
+        fi
+
+        website_root="${{ inputs.website-root }}"
+        if [ -n "$website_root" ]; then
+          r="-r$base_href"
+        fi
+
+        "$command" "$d" "$r" "$h" "$s" "$t"
 
     - name: 'Remove all raw Markdown documents (HTML documents have already been generated)'
       shell: bash
-      working-directory: ${{ inputs.source-directory }}/dist
+      working-directory: ${{ inputs.working-directory }}
       run: |
-        find . -type f | grep '.md$' |
+        find . -type f | grep '\.md$' |
         xargs -d '\n' rm --
 
     - name: 'Fix all `.md` links'
       shell: bash
-      working-directory: ${{ inputs.source-directory }}/dist
+      working-directory: ${{ inputs.working-directory }}
       # links are without the `.html` at the end — GH Pages handles it
       run: |
-        find . -type f | grep '.html$' |
+        find . -type f | grep '\.html$' |
         while read file; do
           perl -i -pe 's/(")([^"]+)(\.md)(\#[^"]+)?(")/"$2$4"/gm' -- "$file"
         done
 
     - name: 'Rename the main readme file'
       shell: bash
-      working-directory: ${{ inputs.source-directory }}/dist
+      working-directory: ${{ inputs.working-directory }}
       run: |
-        index_file="$(ls -A | grep -iE readme\.html)"
+        index_file="$(ls | grep -iE ^readme\.html$ | head -n1)"
         if [ -n "$index_file" ]; then
           mv -- "$index_file" index.html
         else
           echo "::warning::missing the main readme file thus no index.html has been generated"
         fi
-
-    - name: 'Add the stylesheet file'
-      shell: bash
-      run: cp -- ${{ steps.vars.outputs.stylesheet }} ${{ inputs.source-directory }}/dist
