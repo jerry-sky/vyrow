@@ -90,7 +90,7 @@ runs:
 
         website_root="${{ inputs.website-root }}"
         if [ -n "$website_root" ]; then
-          r="-r$base_href"
+          r="-r$website_root"
         fi
 
         "$command" "$d" "$r" "$h" "$s" "$t"
@@ -98,9 +98,9 @@ runs:
     - name: 'Fix all `.md` links'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: "${{ github.action_path }}"/fix-links.sh
+      run: "${{ github.action_path }}/fix-links.sh"
 
     - name: 'Rename the main readme file'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: "${{ github.action_path}}"/rename-index.sh
+      run: "${{ github.action_path}}/rename-index.sh"
