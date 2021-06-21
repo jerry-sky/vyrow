@@ -151,7 +151,7 @@ jobs:
 
       # get current time to mark it in the deployment commit message
       - name: 'Get current time'
-        uses: gerred/actions/current-time@v1.0.0
+        uses: gerred/current-time@v1.0.0
         id: current-time
 
       # deploy the result to the GH Pages branch
