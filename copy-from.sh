@@ -12,6 +12,6 @@ if [ -n "$src_dir" ]; then
 
     # get the list of all files to copy excluding those
     # that are the working directory itself or the `.git` directory
-    find "$src_dir" -type f | grep -v ^"$wrk_dir" | grep -v '\/\.git\/'
+    find "$src_dir" -type f | grep -v ^"$wrk_dir" | grep -v '\/\.git\/' \
         | xargs -d '\n' cp -r -t "$wrk_dir" --
 fi
