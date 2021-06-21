@@ -266,6 +266,7 @@ Please refer to the [*Pandoc Manual*](https://pandoc.org/MANUAL.html#templates) 
 *CSS stylesheet that is used for displaying output documents.*
 
 If not provided, the [template contained in this repository](template/style.css)
+will be used.
 
 ---
 
@@ -316,9 +317,10 @@ files from the checked out `master` branch to the
 ## 5. Some remarks
 
 One can say that this is a glorified GitHub’s Wiki feature.
-However, I would argue that this way of handling Docs, Wikis,
-or anything of that sort is just another way which gives more flexibility.
-This GH Action may be only one tool of many present in one’s website building pipeline.
+However, I would argue that this way of handling Docs, Wikis, notes
+or anything of that sort is just another way of doing it,
+which gives more options, flexibility.
+This GH Action may be just one tool of many present in one’s website building pipeline.
 
 ---
 
