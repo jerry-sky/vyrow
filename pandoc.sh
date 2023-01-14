@@ -11,7 +11,7 @@ if [ "$?" -ne 4 ]; then
 fi
 
 OPTIONS="d:t:s:h:r:"
-LONG_OPTIONS="keep-original,dont-copy-stylesheet"
+LONG_OPTIONS="keep-original,dont-copy-stylesheet,toc"
 
 # parse given options (switches)
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONG_OPTIONS --name "$0" -- "$@")
@@ -36,12 +36,18 @@ working_dir=""
 keep_original=""
 # do not copy the stylesheet file (off by default, copy the stylesheet by default)
 dont_copy_stylesheet=""
+# generate ToC based on level 2+ headers in the document
+toc=""
 
 while true; do
     case "$1" in
         -t)
             template="$2"
             shift 2
+            ;;
+        --toc)
+            toc="--toc"
+            shift 1
             ;;
         -s)
             stylesheet="$2"
@@ -141,8 +147,7 @@ while read original_file; do
                     --to html \
                     --template "$template" \
                     --css "$website_root${stylesheet##*/}" \
-                    --standalone \
-                    --toc \
+                    --standalone $toc \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
                         > "${original_file%???}"".html" # replace `.md` with `.html`

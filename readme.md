@@ -21,10 +21,11 @@
     - [4.2. `pandoc-script`](#42-pandoc-script)
         - [4.2.1. Default Pandoc script](#421-default-pandoc-script)
     - [4.3. `pandoc-template`](#43-pandoc-template)
-    - [4.4. `stylesheet`](#44-stylesheet)
-    - [4.5. `website-root`](#45-website-root)
-    - [4.6. `head`](#46-head)
-    - [4.7. `copy-from`](#47-copy-from)
+    - [4.4. `toc`](#44-toc)
+    - [4.5. `stylesheet`](#45-stylesheet)
+    - [4.6. `website-root`](#46-website-root)
+    - [4.7. `head`](#47-head)
+    - [4.8. `copy-from`](#48-copy-from)
 - [5. Some remarks](#5-some-remarks)
 - [6. Licence](#6-licence)
 
@@ -295,7 +296,16 @@ Please refer to the [*Pandoc Manual*](https://pandoc.org/MANUAL.html#templates) 
 
 ---
 
-### 4.4. `stylesheet`
+### 4.4. `toc`
+
+*Generate a ToC based on document’s level 2+ headings.*
+
+Turned on by default.\
+Set this to `0` to disable this feature.
+
+---
+
+### 4.5. `stylesheet`
 
 *CSS stylesheet that is used for displaying output documents.*
 
@@ -304,7 +314,7 @@ will be used.
 
 ---
 
-### 4.5. `website-root`
+### 4.6. `website-root`
 
 *This is the value that would be used in the `<base href="|>here<|">`*
 *tag in the `<head>` of the HTML output document.*
@@ -324,7 +334,7 @@ If not provided, then `/` will be used.
 
 ---
 
-### 4.6. `head`
+### 4.7. `head`
 
 *Contents of the provided file will be directly inserted into the*
 *`<head>` element of all output HTML documents.*
@@ -334,7 +344,7 @@ the [template contained in this repository](template/head.html) will be used.
 
 ---
 
-### 4.7. `copy-from`
+### 4.8. `copy-from`
 
 *Copy all files from given directory to the [working directory](#41-working-directory).*
 

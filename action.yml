@@ -18,6 +18,11 @@ inputs:
     description: 'Custom Pandoc HTML template.'
     required: false
 
+  toc:
+    description: 'Generate a ToC based on document’s level 2+ headings.'
+    required: true
+    default: '1'
+
   stylesheet:
     description: 'Custom stylesheet file to use for the rendered website.'
     required: false
@@ -78,6 +83,11 @@ runs:
           t="-t$pandoc_template"
         fi
 
+        toc="${{ inputs.toc }}"
+        if [ "$toc" = "1" ]; then
+          c="--toc"
+        fi
+
         stylesheet="${{ inputs.stylesheet }}"
         if [ -n "$stylesheet" ]; then
           s="-s$stylesheet"
@@ -93,7 +103,7 @@ runs:
           r="-r$website_root"
         fi
 
-        "$command" "$d" "$r" "$h" "$s" "$t"
+        "$command" "$d" "$r" "$h" "$s" "$t" "$c"
 
     - name: 'Fix all `.md` links'
       shell: bash
