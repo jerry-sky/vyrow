@@ -91,13 +91,16 @@ if [ -z "$dont_copy_stylesheet" ]; then
     cp -- "$stylesheet" "$working_dir"
 fi
 
+
+file='/tmp/___vyrow_tmp_document.md'
 include_before_body='/tmp/___vyrow_tmp_before_body.html'
 
 title_regex_expression='^(\s*\#\s?)(.+)(\s*)$'
 
 # convert all Markdown documents in the working directory to HTML documents
 find "$working_dir" -type f | grep '\.md$' |
-while read file; do
+while read original_file; do
+    cp "$original_file" "$file"
     # don’t modify the metadata by default
     metadata="METADATA"
     # to be inserted before TOC (empty the file)
@@ -116,13 +119,13 @@ while read file; do
         else
             # if no header title found use filename
             # strip directory
-            title="${file##*/}"
+            title="${original_file##*/}"
             # strip extension (only the last one)
             title="${title%.*}"
             metadata="pagetitle=$title"
         fi
         # add the header before TOC
-        printf '%s\n' "<h1>$title</h1>" >"$include_before_body"
+        printf '%s\n' "<h1>$title</h1>" >>"$include_before_body"
     fi
     # first, prerender the document into JSON
     # then, use `pandoc-katex` to prerender LaTeX
@@ -142,9 +145,9 @@ while read file; do
                     --toc \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
-                        > "${file%???}"".html" # replace `.md` with `.html`
+                        > "${original_file%???}"".html" # replace `.md` with `.html`
     # remove the raw Markdown document
     if [ -z "$keep_original" ]; then
-        rm "$file"
+        rm "$original_file"
     fi
 done
