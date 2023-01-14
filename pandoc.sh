@@ -93,7 +93,7 @@ fi
 
 include_before_body='/tmp/___vyrow_tmp_before_body.html'
 
-title_regex_expression='(\s*\#\s?)(.+)(\s*)$'
+title_regex_expression='^(\s*\#\s?)(.+)(\s*)$'
 
 # convert all Markdown documents in the working directory to HTML documents
 find "$working_dir" -type f | grep '\.md$' |
@@ -106,7 +106,7 @@ while read file; do
     if [ "$(head -n1 "$file")" != "---" ]; then
         # extract the first h1 value to set as a page title
         # (`xargs` is here for whitespace trimming)
-        title=$(perl -0777 -pe 's/'"$title_regex_expression"'/$2/gm' "$file" | head -n1 | xargs)
+        title=$(perl -0777 -pe 's/'"$title_regex_expression"'/$2\n/gm' "$file" | head -n1 | xargs)
         if [ -n "$title" ]; then
             # extracted header title is not empty
             # add a page title
