@@ -91,20 +91,28 @@ if [ -z "$dont_copy_stylesheet" ]; then
     cp -- "$stylesheet" "$working_dir"
 fi
 
+include_before_body='/tmp/___vyrow_tmp_before_body.html'
+
+title_regex_expression='(\s*\#\s?)(.+)(\s*)$'
+
 # convert all Markdown documents in the working directory to HTML documents
 find "$working_dir" -type f | grep '\.md$' |
 while read file; do
     # don’t modify the metadata by default
     metadata="METADATA"
+    # to be inserted before TOC (empty the file)
+    >"$include_before_body"
     # check if the document has a YAML metadata block
     if [ "$(head -n1 "$file")" != "---" ]; then
         # extract the first h1 value to set as a page title
         # (`xargs` is here for whitespace trimming)
-        title=$(perl -0777 -pe 's/(\s*\#\s?)(.+)(\s*)$/$2/gm' "$file" | head -n1 | xargs)
+        title=$(perl -0777 -pe 's/'"$title_regex_expression"'/$2/gm' "$file" | head -n1 | xargs)
         if [ -n "$title" ]; then
             # extracted header title is not empty
             # add a page title
             metadata="pagetitle=$title"
+            # remove the original header from the file
+            sed -E '0,/'"$title_regex_expression"'/{/'"$title_regex_expression"'/d}' -i "$file"
         else
             # if no header title found use filename
             # strip directory
@@ -113,6 +121,8 @@ while read file; do
             title="${title%.*}"
             metadata="pagetitle=$title"
         fi
+        # add the header before TOC
+        printf '%s\n' "<h1>$title</h1>" >"$include_before_body"
     fi
     # first, prerender the document into JSON
     # then, use `pandoc-katex` to prerender LaTeX
@@ -129,6 +139,8 @@ while read file; do
                     --template "$template" \
                     --css "$website_root${stylesheet##*/}" \
                     --standalone \
+                    --toc \
+                    --include-before-body="$include_before_body" \
                     -H "$headers" \
                         > "${file%???}"".html" # replace `.md` with `.html`
     # remove the raw Markdown document
