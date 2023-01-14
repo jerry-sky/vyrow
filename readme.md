@@ -107,6 +107,11 @@ will result in an output of:
 
 ![Example document with an generated ToC (a screenshot of a rendered HTML document)](toc_example_document.png)
 
+ToC will be inserted after the first level one header (`h1` in HTML, `# ` in Markdown),
+or after the contents generated from the
+[YAML metadata block](https://pandoc.org/MANUAL.html#extension-yaml_metadata_block)
+if it’s present in the document.
+
 #### 2.2.3. LaTeX support
 
 As [mentioned above](#221-markdown-format) the Markdown format we’re using
