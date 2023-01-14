@@ -11,7 +11,8 @@
     - [2.1. In general](#21-in-general)
     - [2.2. Specifics](#22-specifics)
         - [2.2.1. Markdown format](#221-markdown-format)
-        - [2.2.2. LaTeX support](#222-latex-support)
+        - [2.2.2. Table of contents (ToC)](#222-table-of-contents-toc)
+        - [2.2.3. LaTeX support](#223-latex-support)
 - [3. How to use](#3-how-to-use)
     - [3.1. General use-case](#31-general-use-case)
     - [3.2. Use-case for non-root websites (like `username.github.io/repository`)](#32-use-case-for-non-root-websites-like-usernamegithubiorepository)
@@ -78,7 +79,35 @@ because it does not allow for LaTeX expressions.
 Please refer to the [Pandoc manual](https://pandoc.org/MANUAL.html)
 for further details regarding the program itself.
 
-#### 2.2.2. LaTeX support
+#### 2.2.2. Table of contents (ToC)
+
+A table of contents will be generated based on document’s headers of level 2 and higher.
+
+Example:\
+Given document of contents:
+```md
+# Document
+
+## Section one
+
+Contents.
+
+## Section two
+
+### Sub-section
+
+Contents.
+
+## Section three
+
+Contents.
+```
+
+will result in an output of:
+
+![Example document with an generated ToC (a screenshot of a rendered HTML document)](toc_example_document.png)
+
+#### 2.2.3. LaTeX support
 
 As [mentioned above](#221-markdown-format) the Markdown format we’re using
 allows for LaTeX expressions to be added to the rendered documents.
