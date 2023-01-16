@@ -157,7 +157,7 @@ while read original_file; do
                     --template "$template" \
                     --css "$website_root${stylesheet##*/}" \
                     --standalone $toc $number_sections \
-                    --toc-depth 6 \
+                    --toc-depth 5 \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
                         | sed -E 's/(data-number="|toc-section-number">|header-section-number">)(0\.)?([\.0-9]+)/\1\3./g' \
