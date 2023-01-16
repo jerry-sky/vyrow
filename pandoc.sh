@@ -144,6 +144,7 @@ while read original_file; do
     # render the document into HTML and save it
     # remove unnecessary `0.` from the numbering system
     # (if no h1 headers are in the document, a `0.` prefix is added by Pandoc)
+    # and also add a dot suffix
     "$dir"/pandoc "$file" \
         --metadata "$metadata" \
         --standalone \
@@ -159,7 +160,7 @@ while read original_file; do
                     --toc-depth 6 \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
-                        | sed -E 's/(data-number="|toc-section-number">|header-section-number">)0\./\1/g' \
+                        | sed -E 's/(data-number="|toc-section-number">|header-section-number">)(0\.)?([\.0-9]+)/\1\3./g' \
                             > "${original_file%???}"".html" # replace `.md` with `.html`
     # remove the raw Markdown document
     if [ -z "$keep_original" ]; then
