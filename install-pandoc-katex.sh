@@ -2,7 +2,7 @@
 
 archive="pandoc-katex.tar.gz"
 
-version="0.1.6"
+version="0.1.10"
 
 # download the archive containing the executable
 curl -L --output "$archive" "https://github.com/xu-cheng/pandoc-katex/releases/download/$version/pandoc-katex-$version-x86_64-unknown-linux-gnu.tar.gz"
