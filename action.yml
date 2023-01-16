@@ -23,6 +23,11 @@ inputs:
     required: true
     default: '1'
 
+  number-sections:
+    description: 'Add numbering to section headers.'
+    required: true
+    default: '0'
+
   stylesheet:
     description: 'Custom stylesheet file to use for the rendered website.'
     required: false
@@ -88,6 +93,11 @@ runs:
           c="--toc"
         fi
 
+        number_sections="${{ inputs.number-sections }}"
+        if [ "$number_sections" = "1" ]; then
+          n="--number-sections"
+        fi
+
         stylesheet="${{ inputs.stylesheet }}"
         if [ -n "$stylesheet" ]; then
           s="-s$stylesheet"
@@ -103,7 +113,7 @@ runs:
           r="-r$website_root"
         fi
 
-        "$command" "$d" "$r" "$h" "$s" "$t" "$c"
+        "$command" "$d" "$r" "$h" "$s" "$t" "$c" "$n"
 
     - name: 'Fix all `.md` links'
       shell: bash

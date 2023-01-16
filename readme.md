@@ -22,10 +22,11 @@
         - [4.2.1. Default Pandoc script](#421-default-pandoc-script)
     - [4.3. `pandoc-template`](#43-pandoc-template)
     - [4.4. `toc`](#44-toc)
-    - [4.5. `stylesheet`](#45-stylesheet)
-    - [4.6. `website-root`](#46-website-root)
-    - [4.7. `head`](#47-head)
-    - [4.8. `copy-from`](#48-copy-from)
+    - [4.5. `number-sections`](#45-number-sections)
+    - [4.6. `stylesheet`](#46-stylesheet)
+    - [4.7. `website-root`](#47-website-root)
+    - [4.8. `head`](#48-head)
+    - [4.9. `copy-from`](#49-copy-from)
 - [5. Some remarks](#5-some-remarks)
 - [6. Licence](#6-licence)
 
@@ -305,7 +306,16 @@ Set this to `0` to disable this feature.
 
 ---
 
-### 4.5. `stylesheet`
+### 4.5. `number-sections`
+
+*Add numbering to section headers.*
+
+Turned off by default.\
+Set this to `1` to enable this feature.
+
+---
+
+### 4.6. `stylesheet`
 
 *CSS stylesheet that is used for displaying output documents.*
 
@@ -314,7 +324,7 @@ will be used.
 
 ---
 
-### 4.6. `website-root`
+### 4.7. `website-root`
 
 *This is the value that would be used in the `<base href="|>here<|">`*
 *tag in the `<head>` of the HTML output document.*
@@ -334,7 +344,7 @@ If not provided, then `/` will be used.
 
 ---
 
-### 4.7. `head`
+### 4.8. `head`
 
 *Contents of the provided file will be directly inserted into the*
 *`<head>` element of all output HTML documents.*
@@ -344,7 +354,7 @@ the [template contained in this repository](template/head.html) will be used.
 
 ---
 
-### 4.8. `copy-from`
+### 4.9. `copy-from`
 
 *Copy all files from given directory to the [working directory](#41-working-directory).*
 

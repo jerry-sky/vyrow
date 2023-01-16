@@ -11,7 +11,7 @@ if [ "$?" -ne 4 ]; then
 fi
 
 OPTIONS="d:t:s:h:r:"
-LONG_OPTIONS="keep-original,dont-copy-stylesheet,toc"
+LONG_OPTIONS="keep-original,dont-copy-stylesheet,toc,number-sections"
 
 # parse given options (switches)
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONG_OPTIONS --name "$0" -- "$@")
@@ -38,6 +38,8 @@ keep_original=""
 dont_copy_stylesheet=""
 # generate ToC based on level 2+ headers in the document
 toc=""
+# add numbering to section headers
+number_sections=""
 
 while true; do
     case "$1" in
@@ -47,6 +49,10 @@ while true; do
             ;;
         --toc)
             toc="--toc"
+            shift 1
+            ;;
+        --number-sections)
+            number_sections="--number-sections"
             shift 1
             ;;
         -s)
@@ -149,8 +155,8 @@ while read original_file; do
                     --to html \
                     --template "$template" \
                     --css "$website_root${stylesheet##*/}" \
-                    --standalone $toc \
-                    --number-sections \
+                    --standalone $toc $number_sections \
+                    --toc-depth 6 \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
                         | sed -E 's/(data-number="|toc-section-number">|header-section-number">)0\./\1/g' \
