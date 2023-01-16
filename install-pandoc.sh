@@ -2,7 +2,7 @@
 
 archive="pandoc.tar.gz"
 
-version="2.19.2"
+version="2.14.0.2"
 
 # download the archive containing the executable
 curl -L --output "$archive" "https://github.com/jgm/pandoc/releases/download/$version/pandoc-$version-linux-amd64.tar.gz"
