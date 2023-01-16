@@ -135,11 +135,13 @@ while read original_file; do
     fi
     # first, prerender the document into JSON
     # then, use `pandoc-katex` to prerender LaTeX
-    # finally, render the document into HTML and save it
+    # render the document into HTML and save it
+    # remove unnecessary `0.` from the numbering system
+    # (if no h1 headers are in the document, a `0.` prefix is added by Pandoc)
     "$dir"/pandoc "$file" \
         --metadata "$metadata" \
         --standalone \
-        --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline+gfm_auto_identifiers \
+        --from markdown-blank_before_header-implicit_figures+lists_without_preceding_blankline+gfm_auto_identifiers+header_attributes \
         --to json \
             | "$dir"/pandoc-katex \
                 | "$dir"/pandoc \
@@ -148,9 +150,11 @@ while read original_file; do
                     --template "$template" \
                     --css "$website_root${stylesheet##*/}" \
                     --standalone $toc \
+                    --number-sections \
                     --include-before-body="$include_before_body" \
                     -H "$headers" \
-                        > "${original_file%???}"".html" # replace `.md` with `.html`
+                        | sed -E 's/(data-number="|toc-section-number">|header-section-number">)0\./\1/g' \
+                            > "${original_file%???}"".html" # replace `.md` with `.html`
     # remove the raw Markdown document
     if [ -z "$keep_original" ]; then
         rm "$original_file"
