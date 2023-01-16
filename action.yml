@@ -18,6 +18,16 @@ inputs:
     description: 'Custom Pandoc HTML template.'
     required: false
 
+  toc:
+    description: 'Generate a ToC based on document’s level 2+ headings.'
+    required: true
+    default: '1'
+
+  number-sections:
+    description: 'Add numbering to section headers.'
+    required: true
+    default: '0'
+
   stylesheet:
     description: 'Custom stylesheet file to use for the rendered website.'
     required: false
@@ -78,6 +88,16 @@ runs:
           t="-t$pandoc_template"
         fi
 
+        toc="${{ inputs.toc }}"
+        if [ "$toc" = "1" ]; then
+          c="--toc"
+        fi
+
+        number_sections="${{ inputs.number-sections }}"
+        if [ "$number_sections" = "1" ]; then
+          n="--number-sections"
+        fi
+
         stylesheet="${{ inputs.stylesheet }}"
         if [ -n "$stylesheet" ]; then
           s="-s$stylesheet"
@@ -93,7 +113,7 @@ runs:
           r="-r$website_root"
         fi
 
-        "$command" "$d" "$r" "$h" "$s" "$t"
+        "$command" "$d" "$r" "$h" "$s" "$t" "$c" "$n"
 
     - name: 'Fix all `.md` links'
       shell: bash

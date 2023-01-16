@@ -11,7 +11,8 @@
     - [2.1. In general](#21-in-general)
     - [2.2. Specifics](#22-specifics)
         - [2.2.1. Markdown format](#221-markdown-format)
-        - [2.2.2. LaTeX support](#222-latex-support)
+        - [2.2.2. Table of contents (ToC)](#222-table-of-contents-toc)
+        - [2.2.3. LaTeX support](#223-latex-support)
 - [3. How to use](#3-how-to-use)
     - [3.1. General use-case](#31-general-use-case)
     - [3.2. Use-case for non-root websites (like `username.github.io/repository`)](#32-use-case-for-non-root-websites-like-usernamegithubiorepository)
@@ -20,10 +21,12 @@
     - [4.2. `pandoc-script`](#42-pandoc-script)
         - [4.2.1. Default Pandoc script](#421-default-pandoc-script)
     - [4.3. `pandoc-template`](#43-pandoc-template)
-    - [4.4. `stylesheet`](#44-stylesheet)
-    - [4.5. `website-root`](#45-website-root)
-    - [4.6. `head`](#46-head)
-    - [4.7. `copy-from`](#47-copy-from)
+    - [4.4. `toc`](#44-toc)
+    - [4.5. `number-sections`](#45-number-sections)
+    - [4.6. `stylesheet`](#46-stylesheet)
+    - [4.7. `website-root`](#47-website-root)
+    - [4.8. `head`](#48-head)
+    - [4.9. `copy-from`](#49-copy-from)
 - [5. Some remarks](#5-some-remarks)
 - [6. Licence](#6-licence)
 
@@ -78,7 +81,40 @@ because it does not allow for LaTeX expressions.
 Please refer to the [Pandoc manual](https://pandoc.org/MANUAL.html)
 for further details regarding the program itself.
 
-#### 2.2.2. LaTeX support
+#### 2.2.2. Table of contents (ToC)
+
+A table of contents will be generated based on document’s headers of level 2 and higher.
+
+Example:\
+Given document of contents:
+```md
+# Document
+
+## Section one
+
+Contents.
+
+## Section two
+
+### Sub-section
+
+Contents.
+
+## Section three
+
+Contents.
+```
+
+will result in an output of:
+
+![Example document with an generated ToC (a screenshot of a rendered HTML document)](toc_example_document.png)
+
+ToC will be inserted after the first level one header (`h1` in HTML, `# ` in Markdown),
+or after the contents generated from the
+[YAML metadata block](https://pandoc.org/MANUAL.html#extension-yaml_metadata_block)
+if it’s present in the document.
+
+#### 2.2.3. LaTeX support
 
 As [mentioned above](#221-markdown-format) the Markdown format we’re using
 allows for LaTeX expressions to be added to the rendered documents.
@@ -261,7 +297,25 @@ Please refer to the [*Pandoc Manual*](https://pandoc.org/MANUAL.html#templates) 
 
 ---
 
-### 4.4. `stylesheet`
+### 4.4. `toc`
+
+*Generate a ToC based on document’s level 2+ headings.*
+
+Turned on by default.\
+Set this to `0` to disable this feature.
+
+---
+
+### 4.5. `number-sections`
+
+*Add numbering to section headers.*
+
+Turned off by default.\
+Set this to `1` to enable this feature.
+
+---
+
+### 4.6. `stylesheet`
 
 *CSS stylesheet that is used for displaying output documents.*
 
@@ -270,7 +324,7 @@ will be used.
 
 ---
 
-### 4.5. `website-root`
+### 4.7. `website-root`
 
 *This is the value that would be used in the `<base href="|>here<|">`*
 *tag in the `<head>` of the HTML output document.*
@@ -290,7 +344,7 @@ If not provided, then `/` will be used.
 
 ---
 
-### 4.6. `head`
+### 4.8. `head`
 
 *Contents of the provided file will be directly inserted into the*
 *`<head>` element of all output HTML documents.*
@@ -300,7 +354,7 @@ the [template contained in this repository](template/head.html) will be used.
 
 ---
 
-### 4.7. `copy-from`
+### 4.9. `copy-from`
 
 *Copy all files from given directory to the [working directory](#41-working-directory).*
 
