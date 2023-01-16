@@ -132,11 +132,9 @@ class TestSuite(unittest.TestCase):
         self.__execute()
         tree = file_tree('Document only with a H1 header.html')
 
-        document_title = 'Document title in a header H1'
+        self.assertRegex(tree.xpath(f'{HEAD}/title/text()')[0], r'Document\stitle\sin\sa\sheader H1')
 
-        self.assertEqual(tree.xpath(f'{HEAD}/title/text()')[0], document_title)
-
-        self.assertEqual(tree.xpath(f'{BODY}/p[1]/text()')[0], 'content')
+        self.assertRegex(tree.xpath(f'{BODY}/p[1]/text()')[0], r'content')
 
     def test_toc_h1_header(self):
         '''
@@ -155,13 +153,13 @@ class TestSuite(unittest.TestCase):
 
         list_element = 'ul[1]/li[1]/'
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], 'Section')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], 'Sub-section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], r'Section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], r'Sub-section')
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], 'Another section')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], 'Another sub-section')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], 'Deeper section')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 3}a/text()')[0], 'Level five section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], r'Another\ssection')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], r'Another\ssub-section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], r'Deeper\ssection')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 3}a/text()')[0], r'Level\sfive\ssection')
         # level six section should not be displayed in the ToC
         self.assertEqual(len(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 4}a')), 0)
 
@@ -186,22 +184,22 @@ class TestSuite(unittest.TestCase):
 
         list_element = 'ul[1]/li[1]/'
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/span[@class="toc-section-number"]/text()')[0], '1.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], ' Section')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '1.1.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], ' Sub-section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/span[@class="toc-section-number"]/text()')[0], r'1\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], r'\sSection')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], r'1\.1\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], r'\sSub-section')
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], ' Another section')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], r'2\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], r'\sAnother\ssection')
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '2.1.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], ' Three')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/span[@class="toc-section-number"]/text()')[0], '2.1.1.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], ' Four')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.1.2.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/text()')[0], ' Four 2nd')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '2.1.2.1.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/text()')[0], ' Five')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], r'2\.1\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], r'\sThree')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/span[@class="toc-section-number"]/text()')[0], r'2\.1\.1\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], r'\sFour')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], r'2\.1\.2\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/text()')[0], r'\sFour\s2nd')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], r'2\.1\.2\.1\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/text()')[0], r'\sFive')
 
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.2.')
-        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/text()')[0], ' Three 2nd')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], r'2\.2\.')
+        self.assertRegex(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/text()')[0], r'\sThree 2nd')
