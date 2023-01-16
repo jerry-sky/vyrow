@@ -1,5 +1,8 @@
 from sys import argv
+from lxml import html as HTML
 import os
+
+HTMLElement = HTML.HtmlElement
 
 
 def file_contents(path: str) -> str:
@@ -38,3 +41,11 @@ def parent_path() -> str:
         pp = '.'
 
     return pp
+
+
+def execute(*args: list[str]) -> None:
+    os.system(r' '.join(args))
+
+
+def file_tree(filename: str) -> HTMLElement:
+    return HTML.fromstring(file_contents(os.path.join(current_path(), 'documents', filename)))

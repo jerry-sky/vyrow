@@ -1,16 +1,9 @@
-from lxml import html as HTML
-from utilities import file_contents, current_path
-from os import path as os_path
+from utilities import parent_path, execute, file_tree, HTMLElement
 import unittest
+import os.path
 
 
-HTMLElement = HTML.HtmlElement
-
-
-def file_tree(filename: str):
-    return HTML.fromstring(file_contents(os_path.join(current_path(), 'documents', filename)))
-
-
+PANDOC_SCRIPT_PATH = os.path.join(parent_path(), 'pandoc.sh')
 # XPath prefixes
 HEAD = '/html/head'
 BODY = '/html/body'
@@ -20,6 +13,15 @@ class TestSuite(unittest.TestCase):
     '''
     Contains tests for some exemplary Markdown documents.
     '''
+
+    def __execute(self, *options: list[str]):
+        execute(
+            PANDOC_SCRIPT_PATH,
+            '--keep-original',
+            '--dont-copy-stylesheet',
+            '-d documents',
+            *options,
+        )
 
     def main(self):
         unittest.main()
@@ -37,6 +39,7 @@ class TestSuite(unittest.TestCase):
         '''
         simple.md
         '''
+        self.__execute()
         tree = file_tree('simple.html')
 
         document_title = 'Simple example document'
@@ -59,9 +62,9 @@ class TestSuite(unittest.TestCase):
         # check the ids of the headers
         self.assertEqual(tree.xpath(f'{BODY}//@id'), [
             'title-block-header',
-            '1-sub-header',
-            '11-smaller-sub-header',
-            '111-even-smaller-sub-header',
+            'sub-header',
+            'smaller-sub-header',
+            'even-smaller-sub-header',
         ])
 
         # partially check for the KaTeX maths
@@ -96,6 +99,7 @@ class TestSuite(unittest.TestCase):
         '''
         A document with no metadata.md
         '''
+        self.__execute()
         tree = file_tree('A document with no metadata.html')
 
         document_title = 'A document with no metadata'
@@ -125,6 +129,7 @@ class TestSuite(unittest.TestCase):
         '''
         Document only with a H1 header.md
         '''
+        self.__execute()
         tree = file_tree('Document only with a H1 header.html')
 
         document_title = 'Document title in a header H1'
@@ -132,3 +137,71 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(tree.xpath(f'{HEAD}/title/text()')[0], document_title)
 
         self.assertEqual(tree.xpath(f'{BODY}/p[1]/text()')[0], 'content')
+
+    def test_toc_h1_header(self):
+        '''
+        Document with a H1 header as title and sections to verify a valid ToC is generated.
+        '''
+        self.__execute('--toc')
+        tree = file_tree('toc/ToC with a H1 header.html')
+
+        document_header_element: HTMLElement = tree.xpath(f'{BODY}/*[1]')[0]
+        self.assertEqual(document_header_element.tag, 'h1')
+        self.assertEqual(document_header_element.text, 'Document')
+
+        toc_element: HTMLElement = tree.xpath(f'{BODY}/*[2]')[0]
+        self.assertEqual(toc_element.tag, 'nav')
+        self.assertEqual(toc_element.attrib['id'], 'TOC')
+
+        list_element = 'ul[1]/li[1]/'
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], 'Section')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], 'Sub-section')
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], 'Another section')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], 'Another sub-section')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], 'Deeper section')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 3}a/text()')[0], 'Level five section')
+        # level six section should not be displayed in the ToC
+        self.assertEqual(len(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 4}a')), 0)
+
+    def test_toc_number_sections(self):
+        '''
+        Document to verify a valid ToC is generated with numbered sections.
+        '''
+        self.__execute('--toc', '--number-sections')
+        tree = file_tree('toc/ToC.html')
+
+        header_element: HTMLElement = tree.xpath(f'{BODY}/*[1]')[0]
+        self.assertEqual(header_element.tag, 'header')
+        self.assertEqual(header_element.attrib['id'], 'title-block-header')
+
+        description_element: HTMLElement = tree.xpath(f'{BODY}/*[2]')[0]
+        self.assertEqual(description_element.tag, 'p')
+        self.assertEqual(description_element.attrib['id'], 'document-description')
+
+        toc_element: HTMLElement = tree.xpath(f'{BODY}/*[3]')[0]
+        self.assertEqual(toc_element.tag, 'nav')
+        self.assertEqual(toc_element.attrib['id'], 'TOC')
+
+        list_element = 'ul[1]/li[1]/'
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/span[@class="toc-section-number"]/text()')[0], '1.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/a/text()')[0], ' Section')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '1.1.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[1]/{list_element * 1}a/text()')[0], ' Sub-section')
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/a/text()')[0], ' Another section')
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '2.1.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}a/text()')[0], ' Three')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/span[@class="toc-section-number"]/text()')[0], '2.1.1.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 2}a/text()')[0], ' Four')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.1.2.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/a/text()')[0], ' Four 2nd')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/span[@class="toc-section-number"]/text()')[0], '2.1.2.1.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/{list_element * 1}/ul[1]/li[2]/{list_element * 1}a/text()')[0], ' Five')
+
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/span[@class="toc-section-number"]/text()')[0], '2.2.')
+        self.assertEqual(tree.xpath(f'{BODY}/nav[1]/ul[1]/li[2]/ul[1]/li[2]/a/text()')[0], ' Three 2nd')

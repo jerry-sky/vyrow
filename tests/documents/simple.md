@@ -10,7 +10,7 @@ author: 'Jane Doe'
 
 ---
 
-## 1. Sub-header
+## Sub-header
 
 Some maths:
 $$
@@ -27,7 +27,7 @@ An ordered list:
 2. two,
 3. three.
 
-### 1.1. Smaller sub-header
-#### 1.1.1. Even smaller sub-header
+### Smaller sub-header
+#### Even smaller sub-header
 
 ---
