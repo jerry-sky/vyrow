@@ -132,7 +132,7 @@ Use it as a part of your GH Actions workflow:
 
 ```yml
 name: 'render the repository as a website'
-uses: 'jerry-sky/vyrow@v0.7.0'
+uses: 'jerry-sky/vyrow@v0.8.0'
 ```
 
 The action will create (if it does not already exist) a directory called `dist`
@@ -176,7 +176,7 @@ jobs:
 
       # use this action to render all Markdown documents into HTML documents
       - name: 'Render the repository as a website'
-        uses: 'jerry-sky/vyrow@v0.7.0'
+        uses: 'jerry-sky/vyrow@v0.8.0'
         with:
           # copy all files from the master branch to the `dist` directory
           # to make all files visible on the website;
@@ -232,7 +232,7 @@ you will have:
 
 ```yml
 - name: 'Render the repository as a website'
-  uses: 'jerry-sky/vyrow@v0.7.0'
+  uses: 'jerry-sky/vyrow@v0.8.0'
   with:
     copy-from: '.'
     website-root: '/repository/'
